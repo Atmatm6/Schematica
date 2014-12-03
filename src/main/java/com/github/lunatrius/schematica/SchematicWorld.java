@@ -140,15 +140,16 @@ public class SchematicWorld extends World {
 		NBTTagList tileEntitiesList = tagCompound.getTagList("TileEntities");
 
 		for (int i = 0; i < tileEntitiesList.tagCount(); i++) {
-			TileEntity tileEntity = TileEntity.createAndLoadEntity((NBTTagCompound) tileEntitiesList.tagAt(i));
-			if (tileEntity != null) {
-				tileEntity.worldObj = this;
-				try {
+			TileEntity tileEntity = null;
+			try {
+				tileEntity = TileEntity.createAndLoadEntity((NBTTagCompound) tileEntitiesList.tagAt(i));
+				if (tileEntity != null) {
+					tileEntity.worldObj = this;
 					tileEntity.validate();
-				} catch (Exception e) {
-					Settings.logger.logSevereException(String.format("TileEntity validation for %s failed!", tileEntity.getClass()), e);
+					this.tileEntities.add(tileEntity);
 				}
-				this.tileEntities.add(tileEntity);
+			} catch (Exception e) {
+				Settings.logger.logSevereException(String.format("TileEntity validation for %s failed!", tileEntity != null ? tileEntity.getClass() : "null"), e);
 			}
 		}
 
